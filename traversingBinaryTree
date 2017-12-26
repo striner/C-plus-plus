@@ -1,0 +1,159 @@
+#include<stdio.h>
+#include<iostream>
+#include<malloc.h>
+using namespace std;
+#define MaxSize 100
+typedef char ElemType;
+typedef struct node
+{
+    ElemType data;//数据类型
+    struct node *lchild;//指向左孩子
+    struct node *rchild;//指向右孩子
+}BTNode;
+void CreateBTNode(BTNode *&b,char *str)//由str串创建二叉链
+{
+    BTNode *St[MaxSize],*p=NULL;
+    int top=-1,k,j=0;
+    char ch;
+    b=NULL;//建立二叉链初始时为空
+    ch=str[j];
+    while(ch!='\0')//str未扫描完时循环
+    {
+        switch(ch)
+        {
+        case'(':top++;St[top]=p;k=1;break;//为左结点
+        case')':top--;break;
+        case',':k=2;break;//为右结点
+        default:p=(BTNode *)malloc(sizeof(BTNode));
+            p->data=ch;
+            p->lchild=p->rchild=NULL;
+            if(b==NULL)//p指向二叉树的根结点
+                b=p;
+            else//已建立二叉树根结点
+            {
+                switch(k)
+                {
+                case 1:St[top]->lchild=p;break;
+                case 2:St[top]->rchild=p;break;
+                }
+            }
+        }
+        j++;
+        ch=str[j];
+    }
+}
+BTNode *FindNode(BTNode *b,ElemType x)//返回data域为x的结点指针
+{
+    BTNode *p;
+    if(b==NULL)
+        return NULL;
+    else if(b->data==x)
+        return b;
+    else
+    {
+        p=FindNode(b->lchild,x);
+        if(p!=NULL)
+            return p;
+        else
+            return FindNode(b->rchild,x);
+    }
+}
+BTNode *LchildNode(BTNode *p)//返回*p结点的左孩子结点指针
+{
+    return p->lchild;
+}
+BTNode *RchildNode(BTNode *p)//返回*p结点的右孩子结点指针
+{
+    return p->rchild;
+}
+int BTNodeDepth(BTNode *b)//求二叉树b的深度
+{
+    int lchilddep,rchilddep;
+    if(b==NULL)
+        return (0);//空树的深度为0
+    else
+    {
+        lchilddep=BTNodeDepth(b->lchild);
+        rchilddep=BTNodeDepth(b->rchild);
+        return(lchilddep>rchilddep)?(lchilddep+1):(rchilddep+1);
+    }
+}
+void DispBTNode(BTNode *b)//以括号表示法输出二叉树
+{
+    if(b!=NULL)
+    {
+        printf(" %c",b->data);
+        if(b->lchild!=NULL||b->rchild!=NULL)
+        {
+            printf("(");
+            DispBTNode(b->lchild);
+            if(b->rchild!=NULL) printf(",");
+            DispBTNode(b->rchild);
+            printf(")");
+        }
+    }
+}
+/*少了求二叉树的宽度*/
+int Nodes(BTNode *b)//求二叉树b结点的个数
+{
+    int num1,num2;
+    if(b==NULL)//空树的情况
+        return 0;
+    else if(b->lchild==NULL&&b->rchild==NULL)//为叶子结点的情况
+        return 1;
+    else//其他情况
+    {
+        num1=Nodes(b->lchild);
+        num2=Nodes(b->rchild);
+        return (num1+num2+1);//返回左右树结点树加1
+    }
+}
+int LeafNodes(BTNode *b)//求二叉树b叶子结点个数
+{
+    int num1,num2;
+    if(b==NULL)//空树的情况
+        return 0;
+    else if(b->lchild==NULL&&b->rchild==NULL)//为叶子结点的情况
+        return 1;
+    else//其他情况
+    {
+        num1=LeafNodes(b->lchild);
+        num2=LeafNodes(b->rchild);
+        return (num1+num2);//返回左右子树叶子结点树
+    }
+}
+int main()
+{
+	char c[MaxSize];
+    BTNode *b,*p,*lp,*rp;
+    //CreateBTNode(b,"A(B(D,E(H(J,K(L,M(,N))))),C(F,G(,I)))");
+	printf("please input a tree: ");
+	gets_s(c);
+	printf("\n");
+	CreateBTNode(b,c);
+    printf("(1)输出二叉树:");
+    DispBTNode(b);
+    printf("\n");
+    printf("(2)'H'结点:");
+    p=FindNode(b,'H');
+    if(p!=NULL)
+    {
+        lp=LchildNode(p);
+        if(lp!=NULL)
+            printf("左孩子为%c",lp->data);
+        else
+            printf("无左孩子");
+        rp=RchildNode(p);
+        if(rp!=NULL)
+            printf(" 右孩子为%c",rp->data);
+        else
+            printf(" 无右孩子");
+    }
+    printf("\n");
+    printf("(3)二叉树b的深度:%d\n",BTNodeDepth(b));
+    /*少了宽度的输出*/
+    printf("(5)二叉树b的结点个数:%d\n",Nodes(b));
+    printf("(6)二叉树b的叶子结点个数:%d\n",LeafNodes(b));
+    return 0;
+}
+
