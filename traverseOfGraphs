@@ -1,0 +1,123 @@
+#include<iostream>
+#include<queue>
+#include<stack>
+#include<stdlib.h>
+#define MAX 100
+using namespace std;
+
+typedef struct 
+{
+    int edges[MAX][MAX];    //邻接矩阵
+    int n;                  //顶点数
+    int e;                  //边数
+}MGraph;
+
+bool visited[MAX];          //标记顶点是否被访问过
+
+void creatMGraph(MGraph &G)    //创建G的邻接矩阵
+{
+    int i,j;
+    int s,t;                 //存储顶点编号
+    int v;                   //存储边的权值
+    for(i=0;i<G.n;i++)       //初始化
+    {
+        for(j=0;j<G.n;j++)
+        {
+            G.edges[i][j]=0;
+        }
+        visited[i]=false;
+    }
+	printf("输入所有边的权值,格式为: 顶点编号s 顶点编号t 顶点s->顶点t的权值\n");
+    for(i=0;i<G.e;i++)      //对矩阵相邻的边赋权值
+    {
+        scanf("%d %d %d",&s,&t,&v);   
+		//两个顶点确定一条边
+		//输入边的顶点编号以及权值
+        G.edges[s][t]=v;
+    }
+}
+
+void DFS(MGraph G,int v)      //深度优先搜索
+{
+    int i;
+    printf("%d ",v);          //访问结点v
+    visited[v]=true;
+    for(i=0;i<G.n;i++)       //访问与v相邻的未被访问过的结点
+    {
+        if(G.edges[v][i]!=0 && visited[i]==false)
+        {
+            DFS(G,i);//若没访问则继续，而且根据顶点的序号按数序访问
+        }
+    }
+}
+//stack弹出顺序有问题  -----------------------------------------------------------------------------------------------------
+void DFS1(MGraph G,int v)   //非递归实现
+{
+    stack<int> s;
+    printf("%d ",v);        //访问初始结点
+    visited[v]=true;
+    s.push(v);              //入栈
+    while(!s.empty())
+    {
+        int i,j;
+        i=s.top();          //取栈顶顶点
+        for(j=0;j<G.n;j++)  //访问与顶点i相邻的顶点
+        {
+            if(G.edges[i][j]!=0 && visited[j]==false)
+            {
+                printf("%d ",j);     //访问
+                visited[j]=true;
+                s.push(j);           //访问完后入栈
+                break;               //找到一个相邻未访问的顶点，访问之后则跳出循环
+            }
+        }
+//对于节点4，找完所有节点发现都已访问过或者没有临边，所以j此时=节点总数，然后把这个4给弹出来直到弹出1，之前的深度搜索的值都已弹出，有半部分还没有遍历，开始遍历有半部分
+        if(j==G.n)                   //如果与i相邻的顶点都被访问过，则将顶点i出栈
+            s.pop();
+    }
+}
+// 有问题     
+void BFS(MGraph G,int v)      //广度优先搜索
+{
+    queue<int> Q;             //STL模板中的queue
+    printf("%d ",v);
+    visited[v]=true;
+    Q.push(v);   //入队列
+    while(!Q.empty()) 
+    {
+        int i,j;
+        i=Q.front();         //取队首顶点
+        Q.pop();//弹出一个，然后遍历这个节点的子节点，然后遍历完再弹出下一个
+        for(j=0;j<G.n;j++)   //广度遍历
+        {
+            if(G.edges[i][j]!=0 && visited[j]==false)
+            {
+                printf("%d ",j);
+                visited[j]=true;
+               // Q.push(j);
+			}
+        }
+    }
+}
+
+int main(void)
+{
+    int n,e;    //建立的图的顶点数和边数
+	printf("输入图的顶点数和边数:  ");
+    while(scanf("%d %d",&n,&e)==2 && n>0)   //scanf()返回正确输入的参数的个数
+    {
+        MGraph G;
+        G.n=n;
+        G.e=e;
+        creatMGraph(G);
+		printf("深度优先搜索遍历结果:   ");
+        DFS(G,0);
+        printf("\n");
+    //  DFS1(G,0);
+    //  printf("\n");
+    //	printf("广度优先搜索遍历结果:   ");
+    //  BFS(G,0);
+    //	printf("\n");
+    }
+    return 0;
+}
